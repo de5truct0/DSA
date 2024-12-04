@@ -1,138 +1,196 @@
-# Data Analysis Pipeline with GPT-4 Integration
+# Data Analysis Pipeline
 
-This project provides an end-to-end data analysis pipeline that integrates data preprocessing, analysis, visualization and API-based insights using GPT-4. The script supports various data formats and simplifies the data science workflow.
+This project provides a comprehensive pipeline for data analysis, including data loading, preprocessing, analysis, visualization, statistical testing, machine learning, and integration with OpenAI GPT-4 for insights. Below is a detailed explanation of the project's components and usage instructions.
+
+---
+
+## Table of Contents
+
+1. [Features](#features)
+2. [Setup Instructions](#setup-instructions)
+3. [Usage Guide](#usage-guide)
+4. [Code Structure](#code-structure)
+5. [Key Classes and Functions](#key-classes-and-functions)
+6. [Local Analysis Options](#local-analysis-options)
+7. [API Integration](#api-integration)
+8. [Example Execution](#example-execution)
 
 ---
 
 ## Features
 
-- **Data Loading**: Supports `.csv`, `.json`, `.xlsx`, and `.parquet` file formats.
-- **Data Preprocessing**: Handles missing values, duplicate removal, categorical encoding, and numeric scaling.
-- **Data Analysis**: Provides basic statistics, correlation analysis, and visualizations.
-- **Statistical Analysis**: Performs normality and correlation tests.
-- **Machine Learning**: Supports classification, regression, and clustering models.
-- **Visualization**: Generates interactive plots using Plotly.
-- **GPT-4 Integration**: Sends data summaries and prompts to GPT-4 for insights.
+- **Data Loading**: Supports CSV, JSON, Excel, and Parquet formats.
+- **Preprocessing**: Handles missing values, encodes categorical variables, removes duplicates, and scales numeric data.
+- **Data Analysis**: Generates basic statistics, identifies missing values, and computes correlations.
+- **Visualization**: Creates distribution plots, box plots, and correlation heatmaps.
+- **Statistical Testing**: Performs normality and correlation tests.
+- **Machine Learning**: Supports classification and regression using Random Forest, Linear/Logistic Regression, and K-Means clustering.
+- **OpenAI Integration**: Sends processed data and prompts to GPT-4 for insights.
+- **Customizable**: Select specific analysis options based on needs.
 
 ---
 
-## Requirements
+## Setup Instructions
 
-### Python Packages
+### Prerequisites
 
-Install required libraries using:
+- Python 3.8 or later
+- Virtual environment (optional but recommended)
+- Required Python libraries
 
-```bash
-pip install -r requirements.txt
-```
+### Installation Steps
 
-**Key Libraries:**
+1. Clone the repository:
 
-- `pandas`, `numpy`: Data manipulation
-- `scikit-learn`: Machine learning and preprocessing
-- `scipy`: Statistical analysis
-- `matplotlib`, `seaborn`, `plotly`: Data visualization
-- `aiohttp`: Asynchronous API communication
-- `python-dotenv`: Environment variable management
+   ```bash
+   git clone <repository_url>
+   cd <repository_directory>
+   ```
 
-### Environment Variables
+2. Create a virtual environment and activate it:
 
-Create a `.env` file in the root directory with the following:
+   ```bash
+   python -m venv env
+   source env/bin/activate  # On Windows: .\env\Scripts\activate
+   ```
 
-```
-API_KEY=your_openai_api_key
-```
+3. Install dependencies:
 
-Replace `your_openai_api_key` with your OpenAI API key.
+   ```bash
+   pip install -r requirements.txt
+   ```
 
----
+4. Set up environment variables:
 
-## How to Run
-
-### 1. Run the Script
-
-Execute the script in your terminal:
-
-```bash
-python datasc.py
-```
-
-### 2. User Prompts
-
-- **Data File Path**: Provide the path to your dataset (e.g., `data.csv`).
-- **Target Column Name**: Specify the target column for ML models or leave blank if none.
-- **Analysis Prompt**: Enter a custom prompt for GPT-4 to analyze the data.
+   - Create a `.env` file in the root directory.
+   - Add your OpenAI API key:
+     ```env
+     API_KEY=your_openai_api_key
+     ```
 
 ---
 
-## Components
+## Usage Guide
 
-### 1. **Data Loading**
+### Running the Script
 
-The `DataLoader` class validates file formats and loads data into a pandas DataFrame.
+1. Execute the script:
 
-Supported formats:
+   ```bash
+   python datasc.py
+   ```
 
-- `.csv`
-- `.json`
-- `.xlsx`
-- `.parquet`
+2. Provide the required inputs when prompted:
 
-### 2. **Data Preprocessing**
+   - Path to the data file.
+   - Target column name (if applicable).
+   - API endpoint (if using GPT-4 integration).
+   - Custom prompt for analysis.
 
-The `DataPreprocessor` class handles:
+### Input Example
 
-- Missing values imputation
-- Duplicate removal
-- Categorical encoding (using `LabelEncoder`)
-- Numeric feature scaling (using `StandardScaler`)
-
-### 3. **Data Analysis**
-
-The `DataAnalyzer` class provides:
-
-- Basic statistics (`describe()`, data types)
-- Correlation matrix
-- Missing value counts
-
-### 4. **Data Visualization**
-
-The `DataVisualizer` class generates:
-
-- Distribution histograms
-- Correlation heatmaps
-- Box plots for outlier detection
-
-### 5. **Statistical Analysis**
-
-The `StatisticalAnalyzer` class includes:
-
-- Normality tests
-- Pearson correlation tests
-
-### 6. **Machine Learning**
-
-The `MachineLearning` class supports:
-
-- Classification (`RandomForestClassifier`, `LogisticRegression`)
-- Regression (`LinearRegression`, `RandomForestRegressor`)
-- Clustering (`KMeans`)
-
-### 7. **GPT-4 Integration**
-
-The `APIHandler` class sends data summaries and custom prompts to GPT-4 and retrieves insights.
+```text
+Enter the path to your data file: data.csv
+Enter target column name (press Enter if none): target
+Enter API endpoint: analysis/predict
+Enter your custom prompt: Analyze this data for trends
+```
 
 ---
 
-### Adding More Models
+## Code Structure
 
-To include additional ML models, modify the `MachineLearning` class:
+- **`datasc.py`**: Main script orchestrating the entire pipeline.
+- **Classes**:
+  - `DataLoader`: Handles file validation and data loading.
+  - `DataPreprocessor`: Performs data cleaning and transformation.
+  - `DataAnalyzer`: Computes basic statistics and correlations.
+  - `DataVisualizer`: Generates visualizations.
+  - `StatisticalAnalyzer`: Conducts statistical tests.
+  - `MachineLearning`: Implements machine learning models for classification and regression.
+  - `APIHandler`: Manages interaction with the OpenAI GPT-4 API.
+- **`requirements.txt`**: Lists dependencies.
 
-```python
-from sklearn.svm import SVC
-self.models['svm_classifier'] = SVC()
-```
+---
 
-### Modifying GPT-4 Prompts
+## Key Classes and Functions
 
-Edit the `messages` structure in the `APIHandler.send_data_async` method to tailor the prompt format.
+### `DataLoader`
+
+- **Methods**:
+  - `validate_file(filepath)`: Checks if the file exists and is of a supported format.
+  - `load_data(source, **kwargs)`: Loads data from various formats.
+
+### `DataPreprocessor`
+
+- **Methods**:
+  - `process_data(df)`: Executes the preprocessing pipeline.
+  - Handles missing values, duplicates, encoding, and scaling.
+
+### `DataAnalyzer`
+
+- **Methods**:
+  - `analyze_data(df)`: Computes statistics and correlations.
+
+### `DataVisualizer`
+
+- **Methods**:
+  - `create_visualizations(df)`: Creates histograms, box plots, and heatmaps.
+
+### `StatisticalAnalyzer`
+
+- **Methods**:
+  - `perform_statistical_tests(df)`: Performs normality and correlation tests.
+
+### `MachineLearning`
+
+- **Methods**:
+  - `train_model(X, y, model_type, test_size)`: Trains models and computes performance metrics.
+
+### `APIHandler`
+
+- **Methods**:
+  - `send_data(data, prompt)`: Sends processed data and prompts to GPT-4 for analysis.
+
+---
+
+## Local Analysis Options
+
+When prompted, select one or more of the following:
+
+1. Basic Statistics (summary, missing values, correlations)
+2. Data Visualizations (distributions, correlations, box plots)
+3. Statistical Tests (normality, correlations)
+4. Classification Analysis (requires target column)
+5. Regression Analysis (requires target column)
+6. All of the above
+
+---
+
+## API Integration
+
+- **Setup**: Add your OpenAI API key to the `.env` file.
+- **Usage**: Input a custom prompt and endpoint when prompted.
+- **Functionality**: Sends data and prompt to GPT-4 for advanced insights.
+
+---
+
+## Example Execution
+
+1. Start the script:
+
+   ```bash
+   python datasc.py
+   ```
+
+2. Input data file path, target column, and API prompt.
+
+3. Review preprocessing metadata and select analysis options.
+
+4. View results (statistics, visualizations, ML metrics) and any GPT-4 insights.
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any suggestions or improvements
