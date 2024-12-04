@@ -1,6 +1,6 @@
 # Data Analysis Pipeline with GPT-4 Integration
 
-This project provides an end-to-end data analysis pipeline that integrates data preprocessing, analysis, visualization, machine learning, and API-based insights using GPT-4. The script supports various data formats and simplifies the data science workflow.
+This project provides an end-to-end data analysis pipeline that integrates data preprocessing, analysis, visualization and API-based insights using GPT-4. The script supports various data formats and simplifies the data science workflow.
 
 ---
 
