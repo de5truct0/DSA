@@ -330,7 +330,95 @@ class DataProcessor:
         except ValueError:
             logger.warning("API credentials not found. API features will be disabled.")
             self.has_api = False
+        self.ml = MachineLearning()
     
+    def _show_local_analysis_menu(self) -> List[str]:
+        """Display and get local analysis options"""
+        print("\n\033[1;33mLocal Analysis Options:\033[0m")
+        options = {
+            '1': 'Basic Statistics (summary, missing values, correlations)',
+            '2': 'Data Visualizations (distributions, correlations, box plots)',
+            '3': 'Statistical Tests (normality, correlations)',
+            '4': 'Classification Analysis',
+            '5': 'Regression Analysis',
+            '6': 'All of the above'
+        }
+        
+        for key, value in options.items():
+            print(f"{key}. {value}")
+        
+        choices = input("\033[1m→ Choose options (comma-separated numbers, e.g., 1,2,3):\033[0m ").strip()
+        selected = [opt.strip() for opt in choices.split(',')]
+        
+        if '6' in selected:
+            return ['1', '2', '3', '4', '5']
+        return selected
+
+    def _perform_local_analysis(self, processed_df: pd.DataFrame, target_col: Optional[str], selected_options: List[str]):
+        """Perform selected local analyses"""
+        if '1' in selected_options:
+            print("\n\033[1;36mBasic Statistics Analysis:\033[0m")
+            analysis_results = self.analyzer.analyze_data(processed_df)
+            print("\033[37mSummary Statistics:\033[0m")
+            print(analysis_results['basic_stats']['summary'])
+            print("\n\033[37mMissing Values:\033[0m")
+            print(json.dumps(analysis_results['missing_values'], indent=2))
+            print("\n\033[37mCorrelation Matrix:\033[0m")
+            print(analysis_results['correlations'])
+
+        if '2' in selected_options:
+            print("\n\033[1;36mGenerating Visualizations:\033[0m")
+            visualizations = self.visualizer.create_visualizations(processed_df)
+            for name, fig in visualizations.items():
+                print(f"\n\033[37mShowing: {name}\033[0m")
+                fig.show()
+
+        if '3' in selected_options:
+            print("\n\033[1;36mStatistical Tests Results:\033[0m")
+            stats_results = self.statistical_analyzer.perform_statistical_tests(processed_df)
+            print("\n\033[37mNormality Tests:\033[0m")
+            for col, result in stats_results.items():
+                if 'normality' in col:
+                    print(f"{col}: {'Normal' if result['is_normal'] else 'Not Normal'} (p-value: {result['p_value']:.4f})")
+            print("\n\033[37mCorrelation Tests:\033[0m")
+            for col, result in stats_results.items():
+                if 'correlation' in col:
+                    print(f"{col}: Correlation: {result['correlation']:.4f} (p-value: {result['p_value']:.4f})")
+
+        if ('4' in selected_options or '5' in selected_options) and not target_col:
+            print("\n\033[1;31m⚠️  Machine Learning analysis requires a target column.\033[0m")
+            return
+
+        if target_col:
+            X = processed_df.drop(columns=[target_col])
+            y = processed_df[target_col]
+            is_categorical = y.dtype == 'object' or len(y.unique()) < 10
+
+            if '4' in selected_options and is_categorical:
+                print("\n\033[1;36mClassification Analysis:\033[0m")
+                ml_results = self.ml.train_model(X, y, 'random_forest_classifier')
+                print("\n\033[37mModel Performance:\033[0m")
+                print(f"Accuracy: {ml_results['accuracy']:.4f}")
+                print("\nClassification Report:")
+                print(ml_results['classification_report'])
+                print("\n\033[37mFeature Importance:\033[0m")
+                for feature, importance in ml_results['feature_importance'].items():
+                    print(f"{feature}: {importance:.4f}")
+            elif '4' in selected_options and not is_categorical:
+                print("\n\033[1;31m⚠️  Target variable is not suitable for classification.\033[0m")
+
+            if '5' in selected_options and not is_categorical:
+                print("\n\033[1;36mRegression Analysis:\033[0m")
+                ml_results = self.ml.train_model(X, y, 'random_forest_regressor')
+                print("\n\033[37mModel Performance:\033[0m")
+                print(f"RMSE: {ml_results['rmse']:.4f}")
+                print(f"MSE: {ml_results['mse']:.4f}")
+                print("\n\033[37mFeature Importance:\033[0m")
+                for feature, importance in ml_results['feature_importance'].items():
+                    print(f"{feature}: {importance:.4f}")
+            elif '5' in selected_options and is_categorical:
+                print("\n\033[1;31m⚠️  Target variable is not suitable for regression.\033[0m")
+
     def run(self):
         """Run the data processing pipeline"""
         try:
@@ -378,7 +466,7 @@ class DataProcessor:
                     print("\n\033[1;31m❌ No analysis received from GPT-4\033[0m")
             else:
                 print("\n\033[1;31m⚠️  API features are disabled due to missing credentials.\033[0m")
-            
+
         except Exception as e:
             logger.error(f"Error in processing: {str(e)}")
             print(f"\n\033[1;31m❌ An error occurred: {str(e)}\033[0m")
